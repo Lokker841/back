@@ -1,0 +1,73 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum District {
+  VOROSHILOVSKY
+  OKTYABRSKY
+  PERVOMAYSKY
+  PROLETARSKY
+  KIROVSKY
+  LENINSKY
+  SOVETSKY
+  ZHELEZNODOROZHNY
+}
+
+enum SportObjectStatus {
+  DRAFT
+  PENDING_REVIEW
+  PUBLISHED
+  ARCHIVED
+}
+
+model SportObject {
+  id          String            @id @default(uuid())
+  name        String            @db.VarChar(255)
+  description String?           @db.Text
+  address     String            @db.VarChar(500)
+  district    District
+  latitude    Float?
+  longitude   Float?
+  rating      Float             @default(0)
+  status      SportObjectStatus @default(DRAFT)
+  areas       SportArea[]
+  images      Media[]
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@index([district])
+  @@index([status])
+  @@index([name])
+}
+
+model SportArea {
+  id           String      @id @default(uuid())
+  name         String      @db.VarChar(255)
+  sportType    String      @db.VarChar(100)
+  pricePerHour Decimal     @db.Decimal(10, 2)
+  schedule     Json        @default("[]")
+  objectId     String
+  object       SportObject @relation(fields: [objectId], references: [id], onDelete: Cascade)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  @@index([objectId])
+  @@index([sportType])
+  @@index([pricePerHour])
+}
+
+model Media {
+  id        String      @id @default(uuid())
+  url       String
+  key       String
+  objectId  String
+  object    SportObject @relation(fields: [objectId], references: [id], onDelete: Cascade)
+  createdAt DateTime    @default(now())
+
+  @@index([objectId])
+}
