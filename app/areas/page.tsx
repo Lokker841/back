@@ -250,7 +250,7 @@ export default function AreasPage() {
           onSubmit={(formData) => {
             if (modal === 'create') {
               createMutation.mutate(formData);
-            } else if (modal && modal !== 'create') {
+            } else if (modal && typeof modal === 'object') {
               updateMutation.mutate({ id: modal.id, data: formData });
             }
           }}

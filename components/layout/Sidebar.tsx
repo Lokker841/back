@@ -2,13 +2,14 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Building2, MapPin } from 'lucide-react';
+import { LayoutDashboard, Building2, MapPin, Activity } from 'lucide-react';
 import clsx from 'clsx';
 
 const NAV = [
-  { href: '/dashboard', label: 'Дашборд', icon: LayoutDashboard },
-  { href: '/objects', label: 'Объекты', icon: Building2 },
-  { href: '/areas', label: 'Площадки', icon: MapPin },
+  { href: '/dashboard',   label: 'Дашборд',    icon: LayoutDashboard },
+  { href: '/objects',     label: 'Объекты',     icon: Building2 },
+  { href: '/areas',       label: 'Площадки',    icon: MapPin },
+  { href: '/monitoring',  label: 'Мониторинг',  icon: Activity },
 ];
 
 export function Sidebar() {
