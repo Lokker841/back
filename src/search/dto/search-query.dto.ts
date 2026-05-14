@@ -4,7 +4,11 @@ import { District } from '@prisma/client';
 
 export class SearchQueryDto {
   @ApiPropertyOptional({
-    description: 'Строка поиска по названию, описанию и адресу объекта (минимум 2 символа)',
+    description:
+      'Строка поиска (минимум 2 символа). Ищет по: ' +
+      'названию объекта, описанию, адресу, а также по виду спорта ' +
+      'любой из площадок объекта. Например, запрос "Футбол" найдёт ' +
+      'и объекты с "Футбол" в названии, и объекты с футбольными площадками.',
     minLength: 2,
     example: 'Олимп',
   })
@@ -14,7 +18,7 @@ export class SearchQueryDto {
   q?: string;
 
   @ApiPropertyOptional({
-    description: 'Фильтр по административному району',
+    description: 'Фильтр по административному району города',
     enum: District,
     example: 'LENINSKY',
   })
@@ -23,7 +27,9 @@ export class SearchQueryDto {
   district?: District;
 
   @ApiPropertyOptional({
-    description: 'Фильтр по виду спорта (частичное совпадение)',
+    description:
+      'Дополнительный фильтр строго по виду спорта (частичное совпадение). ' +
+      'Комбинируется с q и district через AND.',
     example: 'Теннис',
   })
   @IsString()

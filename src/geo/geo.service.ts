@@ -1,3 +1,4 @@
+import cluster from 'node:cluster';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { HttpService } from '@nestjs/axios';
@@ -103,6 +104,10 @@ export class GeoService {
 
   @Cron(CronExpression.EVERY_1ST_DAY_OF_MONTH_AT_NOON)
   async refreshAllCoordinates(): Promise<void> {
+    // В кластерном режиме задача выполняется только в воркере #1,
+    // чтобы избежать N параллельных запусков геокодинга
+    if (cluster.isWorker && cluster.worker?.id !== 1) return;
+
     this.logger.log('Starting monthly geocoding refresh...');
 
     const objects = await this.prisma.sportObject.findMany({

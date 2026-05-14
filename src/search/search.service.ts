@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { SearchQueryDto } from './dto/search-query.dto';
-import { District, SportObjectStatus } from '@prisma/client';
+import { Prisma, SportObjectStatus } from '@prisma/client';
 
 type SportObjectWithRelations = Awaited<
   ReturnType<SearchService['fetchCandidates']>
@@ -17,12 +17,13 @@ export class SearchService {
     return { items: results, total: results.length };
   }
 
+  /**
+   * DB-слой: фильтрует только по проиндексированным полям (status, district).
+   * Текстовый поиск и фильтр по виду спорта — в in-memory, чтобы охватить
+   * и название объекта, и sportType его площадок одним запросом.
+   */
   private async fetchCandidates(query: SearchQueryDto) {
-    const where: {
-      status: SportObjectStatus;
-      district?: District;
-      name?: { contains: string; mode: 'insensitive' };
-    } = {
+    const where: Prisma.SportObjectWhereInput = {
       status: SportObjectStatus.PUBLISHED,
     };
 
@@ -30,32 +31,31 @@ export class SearchService {
       where.district = query.district;
     }
 
-    if (query.q) {
-      where.name = { contains: query.q, mode: 'insensitive' };
-    }
-
     return this.prisma.sportObject.findMany({
       where,
       include: { areas: true, images: true },
       orderBy: { rating: 'desc' },
-      take: 200,
+      take: 500,
     });
   }
 
+  /**
+   * In-memory: применяет текстовый поиск и фильтр по виду спорта.
+   *
+   * Параметр `q` ищет по:
+   *   - названию объекта
+   *   - описанию объекта
+   *   - адресу объекта
+   *   - виду спорта любой из площадок объекта
+   *
+   * Параметр `sport` — дополнительный явный фильтр только по виду спорта
+   * (используется независимо от `q`, комбинируется через AND).
+   */
   private applyInMemoryFilters(
     candidates: SportObjectWithRelations[],
     query: SearchQueryDto,
   ): SportObjectWithRelations[] {
     let results = candidates;
-
-    if (query.sport) {
-      const sportLower = query.sport.toLowerCase();
-      results = results.filter((obj) =>
-        obj.areas.some((area) =>
-          area.sportType.toLowerCase().includes(sportLower),
-        ),
-      );
-    }
 
     if (query.q) {
       const qLower = query.q.toLowerCase();
@@ -63,7 +63,19 @@ export class SearchService {
         (obj) =>
           obj.name.toLowerCase().includes(qLower) ||
           (obj.description?.toLowerCase().includes(qLower) ?? false) ||
-          obj.address.toLowerCase().includes(qLower),
+          obj.address.toLowerCase().includes(qLower) ||
+          obj.areas.some((area) =>
+            area.sportType.toLowerCase().includes(qLower),
+          ),
+      );
+    }
+
+    if (query.sport) {
+      const sportLower = query.sport.toLowerCase();
+      results = results.filter((obj) =>
+        obj.areas.some((area) =>
+          area.sportType.toLowerCase().includes(sportLower),
+        ),
       );
     }
 

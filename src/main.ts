@@ -4,6 +4,7 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { GlobalExceptionFilter } from './common/filters/http-exception.filter';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
+import { ClusterService } from './cluster.service';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -44,4 +45,10 @@ async function bootstrap() {
   console.log(`Swagger docs: http://localhost:${port}/api/docs`);
 }
 
-bootstrap();
+// В development — обычный запуск (совместим с nest --watch)
+// В production  — кластерный запуск (по числу CPU ядер)
+if (process.env.NODE_ENV === 'production') {
+  ClusterService.clusterize(bootstrap);
+} else {
+  void bootstrap();
+}

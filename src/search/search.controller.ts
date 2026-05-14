@@ -16,13 +16,19 @@ export class SearchController {
   @ApiOperation({
     summary: 'Поиск спортивных объектов',
     description:
-      'Двухэтапный поиск: сначала выбирает кандидатов из PostgreSQL по переданным фильтрам, ' +
-      'затем применяет дополнительную фильтрацию в памяти для точного совпадения. ' +
-      'Работает только по **опубликованным** объектам. Кэш 2 минуты.',
+      'Двухэтапный поиск по опубликованным объектам. ' +
+      'Первый этап: выборка из БД по индексированным полям (status, district). ' +
+      'Второй этап: in-memory фильтрация по `q` и `sport`.\n\n' +
+      '**Параметр `q`** ищет одновременно по:\n' +
+      '- названию объекта\n' +
+      '- описанию объекта\n' +
+      '- адресу объекта\n' +
+      '- виду спорта любой из площадок объекта\n\n' +
+      'Все параметры комбинируются через **AND**. Кэш 2 минуты.',
   })
-  @ApiQuery({ name: 'q', required: false, example: 'Олимп', description: 'Текстовый поиск по названию, описанию, адресу (мин. 2 символа)' })
-  @ApiQuery({ name: 'district', required: false, example: 'LENINSKY', description: 'Район города' })
-  @ApiQuery({ name: 'sport', required: false, example: 'Теннис', description: 'Вид спорта (частичное совпадение)' })
+  @ApiQuery({ name: 'q', required: false, example: 'Футбол', description: 'Поиск по названию объекта или виду спорта (мин. 2 символа)' })
+  @ApiQuery({ name: 'district', required: false, example: 'LENINSKY', description: 'Фильтр по району города' })
+  @ApiQuery({ name: 'sport', required: false, example: 'Теннис', description: 'Дополнительный фильтр строго по виду спорта' })
   @ApiResponse({
     status: 200,
     description: 'Массив найденных объектов с общим количеством совпадений',
