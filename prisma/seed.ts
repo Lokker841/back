@@ -2,6 +2,7 @@ import 'dotenv/config';
 import { PrismaClient, District, SportObjectStatus } from '@prisma/client';
 
 const prisma = new PrismaClient();
+const geocodeCache = new Map<string, { latitude: number; longitude: number }>();
 
 // Стандартное расписание 07:00-20:00 каждый день
 const schedule = [0, 1, 2, 3, 4, 5, 6].map((day) => ({
@@ -20,6 +21,131 @@ function areas(list: AreaInput[]) {
     pricePerHour: 0,
     schedule,
   }));
+}
+
+function normalizeAddress(address: string): string {
+  let normalized = address
+    .replace(/\r?\n/g, ' ')
+    .replace(/\s+/g, ' ')
+    .replace(/пр-т/gi, 'проспект')
+    .replace(/пр\./gi, 'проспект')
+    .replace(/пер\./gi, 'переулок')
+    .trim();
+
+  normalized = normalized
+    .replace(/(\d)\s*([абвгдежзийклмнопрстуфхцчшщ])\b/gi, '$1$2')
+    .replace(/\bул\.\s*/gi, 'улица ')
+    .replace(/\bпроспект\s+/gi, 'проспект ')
+    .replace(/\s+,/g, ',')
+    .replace(/,\s*,/g, ',');
+
+  return normalized;
+}
+
+async function geocodeAddress(address: string): Promise<{ latitude: number; longitude: number }> {
+  const apiKey = process.env.YANDEX_GEOCODER_API_KEY;
+  const normalized = normalizeAddress(address);
+  const cached = geocodeCache.get(normalized);
+  if (cached) return cached;
+
+  let latitude: number | null = null;
+  let longitude: number | null = null;
+  const queries = [
+    normalized,
+    normalized.replace(', Россия', ''),
+    normalized.replace(/\bг\.\s*/gi, ''),
+    normalized.replace(/\bг\.\s*/gi, '').replace(/улица/gi, ''),
+    normalized.replace(/\bпереулок\s+/gi, ''),
+    normalized.replace(/\bпроспект\s+/gi, ''),
+    normalized.replace(/\bулица\s+/gi, ''),
+    normalized.replace(/,\s*(\d+[а-яa-z0-9/-]*)/gi, ' $1'),
+    normalized.replace(/,\s*\d+\/\d+.*$/gi, ''),
+  ].filter((v, i, arr) => !!v && arr.indexOf(v) === i);
+
+  if (apiKey && apiKey !== 'your_api_key_here') {
+    for (const q of queries) {
+      const baseUrl = process.env.YANDEX_GEOCODER_URL ?? 'https://geocode-maps.yandex.ru/v1';
+      const url = new URL(baseUrl);
+      url.searchParams.set('apikey', apiKey);
+      url.searchParams.set('geocode', q);
+      url.searchParams.set('format', 'json');
+      url.searchParams.set('results', '1');
+
+      const response = await fetch(url);
+      if (!response.ok) continue;
+      const data = (await response.json()) as {
+        response?: {
+          GeoObjectCollection?: {
+            featureMember?: Array<{
+              GeoObject?: {
+                Point?: { pos?: string };
+              };
+            }>;
+          };
+        };
+      };
+
+      const pos =
+        data.response?.GeoObjectCollection?.featureMember?.[0]?.GeoObject?.Point?.pos;
+      if (pos) {
+        const [lonStr, latStr] = pos.split(' ');
+        longitude = Number.parseFloat(lonStr);
+        latitude = Number.parseFloat(latStr);
+        if (
+          Number.isFinite(latitude) &&
+          Number.isFinite(longitude) &&
+          (latitude as number) >= 47.05 &&
+          (latitude as number) <= 47.45 &&
+          (longitude as number) >= 39.45 &&
+          (longitude as number) <= 40.05
+        ) {
+          break;
+        }
+        latitude = null;
+        longitude = null;
+      }
+    }
+  }
+
+  // Fallback: OSM Nominatim, если Yandex недоступен/ограничен
+  if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+    for (const q of queries) {
+      const url = new URL('https://nominatim.openstreetmap.org/search');
+      url.searchParams.set('q', q);
+      url.searchParams.set('format', 'json');
+      url.searchParams.set('limit', '1');
+      url.searchParams.set('countrycodes', 'ru');
+
+      const response = await fetch(url.toString(), {
+        headers: { 'User-Agent': 'sportgid-seed/1.0' },
+      });
+      if (!response.ok) continue;
+      const data = (await response.json()) as Array<{ lat: string; lon: string }>;
+      if (!data.length) continue;
+      latitude = Number.parseFloat(data[0].lat);
+      longitude = Number.parseFloat(data[0].lon);
+      if (Number.isFinite(latitude) && Number.isFinite(longitude)) break;
+    }
+  }
+
+  const inRostov =
+    Number.isFinite(latitude) &&
+    Number.isFinite(longitude) &&
+    (latitude as number) >= 47.05 &&
+    (latitude as number) <= 47.45 &&
+    (longitude as number) >= 39.45 &&
+    (longitude as number) <= 40.05;
+
+  if (!inRostov) {
+    throw new Error(`Invalid coordinates for "${normalized}"`);
+  }
+  if (latitude === 0 || longitude === 0) {
+    throw new Error(`Zero coordinates for "${normalized}"`);
+  }
+
+  const result = { latitude: latitude as number, longitude: longitude as number };
+  geocodeCache.set(normalized, result);
+  return result;
 }
 
 const OBJECTS = [
@@ -490,10 +616,13 @@ async function main() {
   let areasCreated = 0;
 
   for (const obj of OBJECTS) {
-    const { areas: areasList, phone, website, ...rest } = obj;
+    const { areas: areasList, phone: _phone, website: _website, ...rest } = obj;
+    const coords = await geocodeAddress(obj.address);
     const result = await prisma.sportObject.create({
       data: {
         ...rest,
+        latitude: coords.latitude,
+        longitude: coords.longitude,
         status: SportObjectStatus.PUBLISHED,
         areas: { create: areasList },
       },

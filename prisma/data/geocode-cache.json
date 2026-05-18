@@ -1,0 +1,122 @@
+{
+  "г. Ростов-на-Дону, ул. Капустина, 18/1": {
+    "latitude": 47.278482,
+    "longitude": 39.7180706,
+    "district": "VOROSHILOVSKY"
+  },
+  "г. Ростов-на-Дону, ул. Волкова 18": {
+    "latitude": 47.2830767,
+    "longitude": 39.7185429,
+    "district": "VOROSHILOVSKY"
+  },
+  "г. Ростов-на-Дону, ул. Фурмановская, 150": {
+    "latitude": 47.2715626,
+    "longitude": 39.7309516,
+    "district": "VOROSHILOVSKY"
+  },
+  "г. Ростов-на-Дону, ул. Пойменная, 2а": {
+    "latitude": 47.2042508,
+    "longitude": 39.7339165,
+    "district": "KIROVSKY"
+  },
+  "г. Ростов-на-Дону, ул. Тельмана, 14 «а»": {
+    "latitude": 47.2277546,
+    "longitude": 39.7052943,
+    "district": "OKTYABRSKY"
+  },
+  "г. Ростов-на-Дону, ул. Большая Садовая 127 б": {
+    "latitude": 47.2267453,
+    "longitude": 39.7366904,
+    "district": "KIROVSKY"
+  },
+  "г. Ростов-на-Дону, пер. Беломорский, 16 б": {
+    "latitude": 47.2693558,
+    "longitude": 39.7528899,
+    "district": "PERVOMAYSKY"
+  },
+  "г. Ростов-на-Дону, ул. 26 июня, 103А/15": {
+    "latitude": 47.271043,
+    "longitude": 39.792898,
+    "district": "PERVOMAYSKY"
+  },
+  "г. Ростов-на-Дону, пер. Днепровский, 131": {
+    "latitude": 47.2866502,
+    "longitude": 39.752941,
+    "district": "PERVOMAYSKY"
+  },
+  "г. Ростов-на-Дону, ул. Веры Пановой, 27": {
+    "latitude": 47.2563634,
+    "longitude": 39.7716247,
+    "district": "PERVOMAYSKY"
+  },
+  "г. Ростов-на-Дону, ул.1-й Конной Армии 4е": {
+    "latitude": 47.2453296,
+    "longitude": 39.7597171,
+    "district": "PERVOMAYSKY"
+  },
+  "г. Ростов-на-Дону, ул. Максима Горького, 274": {
+    "latitude": 47.231933,
+    "longitude": 39.7446053,
+    "district": "PROLETARSKY"
+  },
+  "г. Ростов-на-Дону, ул. 2-я Краснодарская, 149 «В»": {
+    "latitude": 47.2020337,
+    "longitude": 39.6208726,
+    "district": "SOVETSKY"
+  },
+  "г. Ростов-на-Дону, ул. Загорская, 10": {
+    "latitude": 47.20944,
+    "longitude": 39.6893517,
+    "district": "ZHELEZNODOROZHNY"
+  },
+  "г. Ростов-на-Дону, ул. Таганрогская, 118/2": {
+    "latitude": 47.256245,
+    "longitude": 39.6489182,
+    "district": "OKTYABRSKY"
+  },
+  "г. Ростов-на-Дону, ул. Шеболдаева, 97/2": {
+    "latitude": 47.2483341,
+    "longitude": 39.696968,
+    "district": "OKTYABRSKY"
+  },
+  "г. Ростов-на-Дону, пр. Михаила Нагибина, 12/3": {
+    "latitude": 47.2632589,
+    "longitude": 39.7196364,
+    "district": "VOROSHILOVSKY"
+  },
+  "г. Ростов-на-Дону, пр-т Королева 24": {
+    "latitude": 47.2948264,
+    "longitude": 39.716346,
+    "district": "VOROSHILOVSKY"
+  },
+  "г. Ростов-на-Дону, пр-т Шолохова 31": {
+    "latitude": 47.2431181,
+    "longitude": 39.7601294,
+    "district": "PERVOMAYSKY"
+  },
+  "г. Ростов-на-Дону, ул.1-ой Конной Армии 6д": {
+    "latitude": 47.2466149,
+    "longitude": 39.7593135,
+    "district": "PERVOMAYSKY"
+  },
+  "г. Ростов-на-Дону, пр. 40-летия Победы, 63/14, ул. Волкова 6/3": {
+    "latitude": 47.23708,
+    "longitude": 39.8144391,
+    "district": "PROLETARSKY"
+  },
+  "г. Ростов-на-Дону, пр. Коммунистический 36/4": {
+    "latitude": 47.2081572,
+    "longitude": 39.6272808,
+    "district": "SOVETSKY"
+  },
+  "г. Ростов-на-Дону, пр. Стачки 28": {
+    "latitude": 47.2115259,
+    "longitude": 39.6694871,
+    "district": "ZHELEZNODOROZHNY"
+  },
+  "г. Ростов-на-Дону, пр-т Буденновский 101": {
+    "latitude": 47.2362452,
+    "longitude": 39.698687,
+    "district": "OKTYABRSKY"
+  }
+}

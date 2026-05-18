@@ -37,7 +37,7 @@ export class GeoService {
     const apiKey = this.configService.get<string>('YANDEX_GEOCODER_API_KEY');
     const baseUrl = this.configService.get<string>(
       'YANDEX_GEOCODER_URL',
-      'https://geocode-maps.yandex.ru/1.x',
+      'https://geocode-maps.yandex.ru/v1',
     );
 
     if (!apiKey || apiKey === 'your_api_key_here') {
