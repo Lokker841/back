@@ -1,11 +1,15 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
+  IsArray,
   IsEnum,
   IsNumber,
   IsOptional,
   IsString,
+  IsUrl,
   MaxLength,
-  Min,
+  ArrayMaxSize,
+  ArrayUnique,
+  IsNotEmpty,
 } from 'class-validator';
 import { District } from '@prisma/client';
 
@@ -59,4 +63,39 @@ export class CreateObjectDto {
   @IsNumber()
   @IsOptional()
   longitude?: number;
+
+  @ApiPropertyOptional({
+    description: 'Контактные телефоны объекта (можно несколько)',
+    example: ['8 (863) 233-46-23', '8 (863) 233-40-00'],
+    type: [String],
+  })
+  @IsArray()
+  @ArrayMaxSize(10)
+  @ArrayUnique()
+  @IsString({ each: true })
+  @IsNotEmpty({ each: true })
+  @MaxLength(100, { each: true })
+  @IsOptional()
+  phones?: string[];
+
+  @ApiPropertyOptional({
+    description: 'Сайт объекта',
+    example: 'https://rostovcska.ru/',
+  })
+  @IsString()
+  @MaxLength(500)
+  @IsOptional()
+  website?: string;
+
+  @ApiPropertyOptional({
+    description: 'Ссылки на изображения объекта',
+    example: ['https://example.com/image-1.jpg', 'https://example.com/image-2.jpg'],
+    type: [String],
+  })
+  @IsArray()
+  @ArrayMaxSize(30)
+  @ArrayUnique()
+  @IsUrl({}, { each: true })
+  @IsOptional()
+  imageUrls?: string[];
 }

@@ -95,7 +95,22 @@ export class AdminService {
   }
 
   async createObject(dto: CreateObjectDto) {
-    const object = await this.prisma.sportObject.create({ data: dto });
+    const { imageUrls, ...objectData } = dto;
+    const object = await this.prisma.sportObject.create({
+      data: {
+        ...objectData,
+        images:
+          imageUrls && imageUrls.length
+            ? {
+                create: imageUrls.map((url) => ({
+                  url,
+                  // key пока не используется в UI, поэтому дублируем url для совместимости схемы
+                  key: url,
+                })),
+              }
+            : undefined,
+      },
+    });
 
     if (!dto.latitude || !dto.longitude) {
       void this.geoService.geocodeObject(object.id);
@@ -118,14 +133,33 @@ export class AdminService {
     const addressChanged =
       dto.address !== undefined && dto.address !== current.address;
 
-    const updated = await this.prisma.sportObject.update({
-      where: { id },
-      data: {
-        ...dto,
-        // При смене адреса сбрасываем старые координаты — они больше не актуальны
-        ...(addressChanged && { latitude: null, longitude: null }),
-      },
+    const { imageUrls, ...objectData } = dto;
+
+    await this.prisma.$transaction(async (tx) => {
+      if (imageUrls !== undefined) {
+        await tx.media.deleteMany({ where: { objectId: id } });
+        if (imageUrls.length) {
+          await tx.media.createMany({
+            data: imageUrls.map((url) => ({
+              objectId: id,
+              url,
+              key: url,
+            })),
+          });
+        }
+      }
+
+      await tx.sportObject.update({
+        where: { id },
+        data: {
+          ...objectData,
+          // При смене адреса сбрасываем старые координаты — они больше не актуальны
+          ...(addressChanged && { latitude: null, longitude: null }),
+        },
+      });
     });
+
+    const updated = await this.findOneObject(id);
 
     if (addressChanged) {
       void this.geoService.geocodeObject(id);

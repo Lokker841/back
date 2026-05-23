@@ -8,7 +8,7 @@ export class CatalogService {
   constructor(private readonly prisma: PrismaService) {}
 
   async findAll(query: CatalogQueryDto) {
-    const { district, sport, limit = 20, offset = 0 } = query;
+    const { district, sport, limit = 50, offset = 0 } = query;
 
     const where: {
       status: SportObjectStatus;

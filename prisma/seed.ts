@@ -23,6 +23,14 @@ function areas(list: AreaInput[]) {
   }));
 }
 
+function parsePhones(raw: string): string[] {
+  if (!raw) return [];
+  return raw
+    .split(/[;,]+/)
+    .map((phone) => phone.trim())
+    .filter(Boolean);
+}
+
 function normalizeAddress(address: string): string {
   let normalized = address
     .replace(/\r?\n/g, ' ')
@@ -154,7 +162,7 @@ const OBJECTS = [
     description:
       'Многофункциональный спортивный объект, предназначенный для проведения тренировок, соревнований и физкультурно-оздоровительных занятий. Комплекс ориентирован на подготовку спортсменов по боксу и кикбоксингу, а также проведение спортивно-массовых мероприятий.',
     address: 'г. Ростов-на-Дону, ул. Капустина, 18/1',
-    district: District.LENINSKY,
+    district: District.VOROSHILOVSKY,
     phone: '8 (863) 233-46-23',
     website: 'https://xn--80abdlbawp4anmz7d9b.xn--p1ai/',
     areas: areas([
@@ -167,7 +175,7 @@ const OBJECTS = [
     description:
       'Многофункциональный спортивный объект, предназначенный для проведения тренировок, соревнований и физкультурно-оздоровительных занятий. Комплекс ориентирован на подготовку спортсменов и организацию занятий по плаванию, синхронному плаванию, боксу и дзюдо.',
     address: 'г. Ростов-на-Дону, пр. Михаила Нагибина, 12/3',
-    district: District.OKTYABRSKY,
+    district: District.VOROSHILOVSKY,
     phone: '8 (863) 201-38-00',
     website: 'https://dussh10rostov.ru/',
     areas: areas([
@@ -182,7 +190,7 @@ const OBJECTS = [
     description:
       'Многофункциональный спортивный объект, предназначенный для проведения тренировок, соревнований и физкультурно-оздоровительных занятий. Комплекс ориентирован на подготовку спортсменов по вольной и греко-римской борьбе, тяжёлой атлетике и художественной гимнастике.',
     address: 'г. Ростов-на-Дону, ул. Волкова, 18',
-    district: District.LENINSKY,
+    district: District.VOROSHILOVSKY,
     phone: '8 (863) 240-94-45',
     website: 'https://sdushor-35.ru/',
     areas: areas([
@@ -197,7 +205,7 @@ const OBJECTS = [
     description:
       'Многофункциональный спортивный объект для лиц с ограниченными возможностями здоровья. Комплекс ориентирован на подготовку спортсменов по адаптивным видам спорта: плавание, лёгкая атлетика, настольный теннис, шахматы, шашки, спортивная гимнастика.',
     address: 'г. Ростов-на-Дону, пр-т Королева, 24',
-    district: District.SOVETSKY,
+    district: District.VOROSHILOVSKY,
     phone: '8 (863) 231-10-40',
     website: 'https://pash27.ru/',
     areas: areas([
@@ -236,7 +244,7 @@ const OBJECTS = [
     description:
       'Многофункциональный спортивный объект для подготовки спортсменов по гребному спорту, гребле на байдарках и каноэ, BMX, волейболу, теннису, футболу, триатлону, скалолазанию, шахматам и другим видам спорта.',
     address: 'г. Ростов-на-Дону, ул. Пойменная, 2а',
-    district: District.ZHELEZNODOROZHNY,
+    district: District.KIROVSKY,
     phone: '8 (863) 240-50-65',
     website: 'https://grebnoykanal.ru/',
     areas: areas([
@@ -257,7 +265,7 @@ const OBJECTS = [
     description:
       'Спортивный комплекс, обеспечивающий проведение учебно-тренировочного процесса, соревнований и массовых спортивных мероприятий. На базе объекта развиваются футбол, бейсбол, лёгкая атлетика, баскетбол, волейбол и гандбол.',
     address: 'г. Ростов-на-Дону, ул. Пойменная, 2а',
-    district: District.ZHELEZNODOROZHNY,
+    district: District.KIROVSKY,
     phone: '8 (863) 282-83-64',
     website: '',
     areas: areas([
@@ -276,7 +284,7 @@ const OBJECTS = [
     description:
       'Спортивный объект, предназначенный для проведения тренировочных занятий, соревнований и физкультурно-оздоровительных мероприятий. На базе школы развиваются футбол, велоспорт, плавание и шахматы.',
     address: 'г. Ростов-на-Дону, ул. Тельмана, 14а',
-    district: District.ZHELEZNODOROZHNY,
+    district: District.OKTYABRSKY,
     phone: '8 (863) 282-83-64',
     website: 'https://sports-school.ru/',
     areas: areas([
@@ -290,7 +298,7 @@ const OBJECTS = [
     description:
       'Спортивный объект для подготовки спортсменов по тхэквондо, фехтованию, художественной гимнастике, бильярдному спорту и акробатическому рок-н-роллу.',
     address: 'г. Ростов-на-Дону, ул. Большая Садовая, 127б',
-    district: District.LENINSKY,
+    district: District.KIROVSKY,
     phone: '8 (863) 263-54-46',
     website: 'https://osd-11.ru/',
     areas: areas([
@@ -306,7 +314,7 @@ const OBJECTS = [
     description:
       'Спортивный объект, специализирующийся на подготовке спортсменов по спортивной гимнастике и проведении учебно-тренировочных занятий.',
     address: 'г. Ростов-на-Дону, пер. Беломорский, 16б',
-    district: District.PROLETARSKY,
+    district: District.PERVOMAYSKY,
     phone: '8 (863) 291-85-90',
     website: 'https://rostovgymnast.ru/',
     areas: areas([{ name: 'Спортивный зал', sportType: 'Спортивная гимнастика' }]),
@@ -316,7 +324,7 @@ const OBJECTS = [
     description:
       'Спортивный объект для проведения учебно-тренировочных занятий и соревнований. Развиваются плавание, кудо, гандбол, тхэквондо, футбол, теннис, самбо, волейбол, спортивная акробатика, спортивная борьба и настольный теннис.',
     address: 'г. Ростов-на-Дону, ул. 26 Июня, 103А/15',
-    district: District.OKTYABRSKY,
+    district: District.PERVOMAYSKY,
     phone: '8 (863) 223-83-39',
     website: 'https://dussh13.ru/',
     areas: areas([
@@ -336,7 +344,7 @@ const OBJECTS = [
     description:
       'Центр спортивной подготовки, ориентированный на развитие игровых и индивидуальных видов спорта: бадминтон, настольный теннис, теннис и чир спорт.',
     address: 'г. Ростов-на-Дону, пер. Днепровский, 131',
-    district: District.PROLETARSKY,
+    district: District.PERVOMAYSKY,
     phone: '8 (863) 223-39-68',
     website: 'https://дюсш-3-ростов.рф/',
     areas: areas([
@@ -353,7 +361,7 @@ const OBJECTS = [
     description:
       'Спортивная школа, специализирующаяся на игровых видах спорта и подготовке спортсменов. Проводятся тренировки по волейболу, футболу, баскетболу, тхэквондо, дзюдо, кудо, художественной гимнастике.',
     address: 'г. Ростов-на-Дону, ул. Веры Пановой, 27',
-    district: District.SOVETSKY,
+    district: District.PERVOMAYSKY,
     phone: '8 (863) 250-82-83',
     website: 'https://дюсш6.рф/',
     areas: areas([
@@ -371,7 +379,7 @@ const OBJECTS = [
     description:
       'Спортивная школа, специализирующаяся на подготовке спортсменов в видах единоборств: бокс, дзюдо, самбо, вольная и греко-римская борьба. Также развиваются гандбол, гребной спорт, лёгкая атлетика, парусный спорт, скалолазание, теннис, футбол.',
     address: 'г. Ростов-на-Дону, ул. 1-й Конной Армии, 4е',
-    district: District.SOVETSKY,
+    district: District.PERVOMAYSKY,
     phone: '8 (863) 242-29-77',
     website: 'https://olimpic8.ru/',
     areas: areas([
@@ -390,7 +398,7 @@ const OBJECTS = [
     description:
       'Центр олимпийской подготовки. Развиваются бокс, велоспорт, гребной спорт, гребля на байдарках и каноэ, дзюдо, лёгкая атлетика, парусный спорт, прыжки на батуте, современное пятиборье, спортивная борьба, стрельба из лука, тхэквондо, тяжёлая атлетика, фехтование, художественная гимнастика.',
     address: 'г. Ростов-на-Дону, пр-т Шолохова, 31',
-    district: District.SOVETSKY,
+    district: District.PERVOMAYSKY,
     phone: '8 (863) 261-33-08',
     website: 'https://olympicrostov.ru/',
     areas: areas([
@@ -417,7 +425,7 @@ const OBJECTS = [
     description:
       'Спортивный объект с бассейном. Развиваются водное поло, конный спорт, плавание, синхронное плавание, современное пятиборье и фехтование.',
     address: 'г. Ростов-на-Дону, ул. 1-й Конной Армии, 6д',
-    district: District.SOVETSKY,
+    district: District.PERVOMAYSKY,
     phone: '8 (863) 252-59-89',
     website: 'https://korall-rostov.ru/',
     areas: areas([
@@ -434,7 +442,7 @@ const OBJECTS = [
     description:
       'Спортивная школа с широким профилем единоборств и гимнастики. Развиваются кудо, дзюдо, тхэквондо, киокусинкай, чир спорт, акробатический рок-н-ролл, спортивная борьба, прыжки в воду, брейкинг.',
     address: 'г. Ростов-на-Дону',
-    district: District.LENINSKY,
+    district: District.KIROVSKY,
     phone: '8 (863) 269-38-85',
     website: 'https://dussh11.ru/',
     areas: areas([
@@ -456,7 +464,7 @@ const OBJECTS = [
     description:
       'Спортивная школа с разнообразной инфраструктурой. Развиваются лёгкая атлетика, пулевая стрельба, дартс и баскетбол.',
     address: 'г. Ростов-на-Дону, пр. 40-летия Победы, 63/14',
-    district: District.LENINSKY,
+    district: District.PROLETARSKY,
     phone: '8 (863) 257-04-23',
     website: 'https://дсш1-ростов.рф/',
     areas: areas([
@@ -471,7 +479,7 @@ const OBJECTS = [
     description:
       'Спортивная школа, специализирующаяся на баскетболе и спортивной борьбе.',
     address: 'г. Ростов-на-Дону, ул. Максима Горького, 274',
-    district: District.LENINSKY,
+    district: District.PROLETARSKY,
     phone: '8 (863) 266-64-57',
     website: 'https://dushrostov-7.ru/',
     areas: areas([
@@ -484,7 +492,7 @@ const OBJECTS = [
     description:
       'Спортивный объект с разнообразной инфраструктурой. Развиваются футбол, настольный теннис, акробатический рок-н-ролл, художественная гимнастика, лёгкая атлетика, волейбол.',
     address: 'г. Ростов-на-Дону, ул. 2-я Краснодарская, 149В',
-    district: District.PROLETARSKY,
+    district: District.SOVETSKY,
     phone: '8 (863) 207-52-08',
     website: 'https://сш12.рф/',
     areas: areas([
@@ -501,7 +509,7 @@ const OBJECTS = [
     description:
       'Спортивная школа олимпийского резерва, специализирующаяся на зимних видах спорта: фигурное катание на коньках и хоккей.',
     address: 'г. Ростов-на-Дону, пр. Коммунистический, 36/4',
-    district: District.LENINSKY,
+    district: District.SOVETSKY,
     phone: '8 (863) 210-35-69',
     website: 'https://zimarostov.ru/',
     areas: areas([
@@ -514,7 +522,7 @@ const OBJECTS = [
     description:
       'Спортивная школа с широким профилем. Развиваются волейбол, гандбол, художественная гимнастика, каратэ, борьба на поясах.',
     address: 'г. Ростов-на-Дону, ул. Загорская, 10',
-    district: District.SOVETSKY,
+    district: District.ZHELEZNODOROZHNY,
     phone: '8 (863) 680-76-73',
     website: 'https://sport-shkola.ru/',
     areas: areas([
@@ -530,7 +538,7 @@ const OBJECTS = [
     description:
       'Спортивная школа олимпийского резерва. Развиваются бокс, велоспорт (ВМХ, МТБ, трек, шоссе), пулевая стрельба, стендовая стрельба, стрельба из лука, теннис, футбол.',
     address: 'г. Ростов-на-Дону, пр. Стачки, 28',
-    district: District.LENINSKY,
+    district: District.ZHELEZNODOROZHNY,
     phone: '8 (863) 236-13-27',
     website: 'https://сшор19.рф/',
     areas: areas([
@@ -550,7 +558,7 @@ const OBJECTS = [
     description:
       'Спортивная школа с уклоном в единоборства: спортивная борьба (греко-римская и вольная), бокс, самбо, дзюдо.',
     address: 'г. Ростов-на-Дону, ул. Таганрогская, 118/2',
-    district: District.ZHELEZNODOROZHNY,
+    district: District.OKTYABRSKY,
     phone: '8 (863) 276-98-51',
     website: 'https://olimpic8.ru/',
     areas: areas([
@@ -565,7 +573,7 @@ const OBJECTS = [
     name: 'ГБУ ДО РО «СШОР № 1»',
     description: 'Спортивная школа олимпийского резерва. Специализируется на самбо и дзюдо.',
     address: 'г. Ростов-на-Дону, ул. Шеболдаева, 97/2',
-    district: District.SOVETSKY,
+    district: District.OKTYABRSKY,
     phone: '8(863) 283-90-07',
     website: 'https://schor1-rr.ru/',
     areas: areas([
@@ -578,7 +586,7 @@ const OBJECTS = [
     description:
       'Многопрофильный спортивный объект. Развиваются баскетбол, бокс, водное поло, велоспорт, гандбол, гребной спорт, лёгкая атлетика, парусный спорт, плавание, синхронное плавание, самбо, современное пятиборье, спортивная борьба, спортивная гимнастика, художественная гимнастика, триатлон, фехтование, футбол.',
     address: 'г. Ростов-на-Дону, пр-т Будённовский, 101',
-    district: District.LENINSKY,
+    district: District.OKTYABRSKY,
     phone: '8 (863) 234-50-02',
     website: 'https://rouor.ru/',
     areas: areas([
@@ -616,11 +624,13 @@ async function main() {
   let areasCreated = 0;
 
   for (const obj of OBJECTS) {
-    const { areas: areasList, phone: _phone, website: _website, ...rest } = obj;
+    const { areas: areasList, phone, website, ...rest } = obj;
     const coords = await geocodeAddress(obj.address);
     const result = await prisma.sportObject.create({
       data: {
         ...rest,
+        phones: parsePhones(phone ?? ''),
+        website: website && website.trim().length > 0 ? website.trim() : null,
         latitude: coords.latitude,
         longitude: coords.longitude,
         status: SportObjectStatus.PUBLISHED,

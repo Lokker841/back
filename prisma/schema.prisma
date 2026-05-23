@@ -30,6 +30,8 @@ model SportObject {
   name        String            @db.VarChar(255)
   description String?           @db.Text
   address     String            @db.VarChar(500)
+  phones      String[]          @default([])
+  website     String?           @db.VarChar(500)
   district    District
   latitude    Float?
   longitude   Float?
