@@ -46,6 +46,8 @@ export interface SportObject {
   name: string;
   description?: string;
   address: string;
+  phones: string[];
+  website?: string | null;
   district: District;
   latitude?: number;
   longitude?: number;
@@ -83,9 +85,9 @@ export const adminApi = {
       api.get<PaginatedResponse<SportObject>>('/admin/objects', { params }).then((r) => r.data),
     get: (id: string) =>
       api.get<SportObject>(`/admin/objects/${id}`).then((r) => r.data),
-    create: (data: Partial<SportObject>) =>
+    create: (data: Partial<SportObject> & { imageUrls?: string[] }) =>
       api.post<SportObject>('/admin/objects', data).then((r) => r.data),
-    update: (id: string, data: Partial<SportObject>) =>
+    update: (id: string, data: Partial<SportObject> & { imageUrls?: string[] }) =>
       api.patch<SportObject>(`/admin/objects/${id}`, data).then((r) => r.data),
     delete: (id: string) =>
       api.delete(`/admin/objects/${id}`).then((r) => r.data),

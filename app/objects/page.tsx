@@ -25,11 +25,17 @@ function ObjectForm({
   loading,
 }: {
   initial?: Partial<SportObject>;
-  onSubmit: (data: Partial<SportObject>) => void;
+  onSubmit: (data: Partial<SportObject> & { imageUrls?: string[] }) => void;
   loading: boolean;
 }) {
   const [form, setForm] = useState<Partial<SportObject>>(
-    initial ?? { status: 'DRAFT' },
+    initial ?? { status: 'DRAFT', phones: [] },
+  );
+  const [phonesInput, setPhonesInput] = useState(
+    (initial?.phones ?? []).join('\n'),
+  );
+  const [imageUrlsInput, setImageUrlsInput] = useState(
+    (initial?.images ?? []).map((img) => img.url).join('\n'),
   );
 
   const set = (field: keyof SportObject, value: unknown) =>
@@ -39,7 +45,21 @@ function ObjectForm({
     <form
       onSubmit={(e) => {
         e.preventDefault();
-        onSubmit(form);
+        const phones = phonesInput
+          .split(/\r?\n/)
+          .map((v) => v.trim())
+          .filter(Boolean);
+        const imageUrls = imageUrlsInput
+          .split(/\r?\n/)
+          .map((v) => v.trim())
+          .filter(Boolean);
+
+        onSubmit({
+          ...form,
+          phones,
+          website: form.website?.trim() || null,
+          imageUrls,
+        });
       }}
       className="space-y-4"
     >
@@ -94,6 +114,45 @@ function ObjectForm({
           rows={3}
           value={form.description ?? ''}
           onChange={(e) => set('description', e.target.value)}
+          className={`${inputCls} resize-none`}
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Телефоны (по одному в строке)
+        </label>
+        <textarea
+          rows={3}
+          value={phonesInput}
+          onChange={(e) => setPhonesInput(e.target.value)}
+          placeholder={'8 (863) 123-45-67\n8 (863) 765-43-21'}
+          className={`${inputCls} resize-none`}
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Веб-сайт
+        </label>
+        <input
+          type="url"
+          value={form.website ?? ''}
+          onChange={(e) => set('website', e.target.value)}
+          placeholder="https://example.com"
+          className={inputCls}
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Ссылки на изображения (по одной в строке)
+        </label>
+        <textarea
+          rows={4}
+          value={imageUrlsInput}
+          onChange={(e) => setImageUrlsInput(e.target.value)}
+          placeholder={'https://example.com/image1.jpg\nhttps://example.com/image2.jpg'}
           className={`${inputCls} resize-none`}
         />
       </div>
