@@ -1,8 +1,14 @@
 'use client';
 
+import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Building2, MapPin, TrendingUp, AlertCircle } from 'lucide-react';
-import { adminApi, DISTRICT_LABELS, STATUS_LABELS, STATUS_COLORS } from '@/lib/api';
+import {
+  adminApi,
+  DISTRICT_LABELS,
+  STATUS_LABELS,
+  STATUS_COLORS,
+} from '@/lib/api';
 import { StatCard } from '@/components/ui/StatCard';
 import { Badge } from '@/components/ui/Badge';
 
@@ -12,6 +18,24 @@ export default function DashboardPage() {
     queryFn: adminApi.stats,
     refetchInterval: 30_000,
   });
+
+  const { data: areas = [] } = useQuery({
+    queryKey: ['admin', 'areas'],
+    queryFn: () => adminApi.areas.list(),
+    refetchInterval: 30_000,
+  });
+
+  const sportsWithCounts = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const area of areas) {
+      const key = area.sportType?.trim();
+      if (!key) continue;
+      map.set(key, (map.get(key) ?? 0) + 1);
+    }
+    return [...map.entries()]
+      .map(([sportType, count]) => ({ sportType, count }))
+      .sort((a, b) => b.count - a.count || a.sportType.localeCompare(b.sportType, 'ru'));
+  }, [areas]);
 
   if (isLoading) {
     return (
@@ -55,7 +79,7 @@ export default function DashboardPage() {
         />
         <StatCard
           title="Видов спорта"
-          value={stats.topSports.length}
+          value={sportsWithCounts.length}
           icon={<TrendingUp size={22} />}
         />
       </div>
@@ -101,16 +125,16 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Топ видов спорта */}
+        {/* Полный список видов спорта */}
         <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-          <h2 className="text-sm font-semibold text-gray-700 mb-4">Виды спорта</h2>
-          <div className="space-y-2">
-            {stats.topSports.map(({ sportType, count }) => (
+          <h2 className="text-sm font-semibold text-gray-700 mb-4">
+            Виды спорта (полный список)
+          </h2>
+          <div className="max-h-72 overflow-auto space-y-2 pr-1">
+            {sportsWithCounts.map(({ sportType, count }) => (
               <div key={sportType} className="flex items-center justify-between">
                 <span className="text-sm text-gray-600">{sportType}</span>
-                <span className="text-sm font-semibold text-gray-800">
-                  {count}
-                </span>
+                <span className="text-sm font-semibold text-gray-800">{count}</span>
               </div>
             ))}
           </div>

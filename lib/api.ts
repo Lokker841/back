@@ -69,6 +69,7 @@ export interface PaginatedResponse<T> {
 export interface StatsResponse {
   totalObjects: number;
   totalAreas: number;
+  totalSports: number;
   byDistrict: { district: District; count: number }[];
   byStatus: { status: SportObjectStatus; count: number }[];
   topSports: { sportType: string; count: number }[];
@@ -105,6 +106,11 @@ export const adminApi = {
     delete: (id: string) =>
       api.delete(`/admin/areas/${id}`).then((r) => r.data),
   },
+};
+
+export const catalogApi = {
+  sports: () =>
+    api.get<string[]>('/catalog/sports').then((r) => r.data),
 };
 
 // ─── Labels ───────────────────────────────────────────────────────────────────
