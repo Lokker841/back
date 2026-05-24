@@ -45,6 +45,25 @@ export class CatalogController {
     return this.catalogService.findAll(query);
   }
 
+  @Get('sports')
+  @CacheTTL(300)
+  @ApiOperation({
+    summary: 'Список всех видов спорта',
+    description:
+      'Возвращает уникальный список видов спорта по **опубликованным** объектам каталога. ' +
+      'Результат кэшируется в Redis на 5 минут.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Уникальные виды спорта',
+    schema: {
+      example: ['Баскетбол', 'Бокс', 'Плавание', 'Футбол'],
+    },
+  })
+  findSports() {
+    return this.catalogService.findSports();
+  }
+
   @Get(':id')
   @CacheTTL(600)
   @ApiOperation({

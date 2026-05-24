@@ -51,4 +51,23 @@ export class CatalogService {
       include: { areas: true, images: true },
     });
   }
+
+  async findSports() {
+    const rows = await this.prisma.sportArea.findMany({
+      where: {
+        object: {
+          status: SportObjectStatus.PUBLISHED,
+        },
+      },
+      select: {
+        sportType: true,
+      },
+      distinct: ['sportType'],
+      orderBy: {
+        sportType: 'asc',
+      },
+    });
+
+    return rows.map((r) => r.sportType);
+  }
 }

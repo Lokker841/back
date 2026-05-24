@@ -31,7 +31,7 @@ export class AdminService {
   // ─── Dashboard ───────────────────────────────────────────────
 
   async getStats() {
-    const [totalObjects, totalAreas, byDistrict, byStatus, bySport] =
+    const [totalObjects, totalAreas, byDistrict, byStatus, bySport, totalSports] =
       await Promise.all([
         this.prisma.sportObject.count(),
         this.prisma.sportArea.count(),
@@ -49,11 +49,17 @@ export class AdminService {
           orderBy: { _count: { id: 'desc' } },
           take: 10,
         }),
+        this.prisma.sportArea
+          .groupBy({
+            by: ['sportType'],
+          })
+          .then((rows) => rows.length),
       ]);
 
     return {
       totalObjects,
       totalAreas,
+      totalSports,
       byDistrict: byDistrict.map((d) => ({
         district: d.district,
         count: d._count.id,
