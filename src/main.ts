@@ -34,10 +34,12 @@ async function bootstrap() {
     .setTitle('Спорт Гид Ростов API')
     .setDescription('Реестр спортивных объектов Ростова-на-Дону')
     .setVersion('1.0')
+    .addBearerAuth()
     .addTag('catalog', 'Публичный каталог объектов')
     .addTag('search', 'Поиск объектов')
     .addTag('admin', 'Панель администрирования')
     .addTag('geo', 'Геокодирование')
+    .addTag('auth', 'Авторизация')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

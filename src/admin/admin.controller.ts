@@ -8,6 +8,7 @@ import {
   Param,
   Query,
   HttpCode,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiBody,
@@ -16,6 +17,7 @@ import {
   ApiQuery,
   ApiResponse,
   ApiTags,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 import { IsInt, IsOptional, Min } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
@@ -24,6 +26,7 @@ import { CreateObjectDto } from './dto/create-object.dto';
 import { UpdateObjectDto } from './dto/update-object.dto';
 import { CreateAreaDto } from './dto/create-area.dto';
 import { UpdateAreaDto } from './dto/update-area.dto';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import {
   STATS_EXAMPLE,
   ADMIN_OBJECTS_LIST_EXAMPLE,
@@ -51,6 +54,8 @@ class PaginationQuery {
 }
 
 @ApiTags('admin')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
 @Controller({ path: 'admin', version: '1' })
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}

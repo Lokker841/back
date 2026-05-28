@@ -14,6 +14,7 @@ import { SearchModule } from './search/search.module';
 import { GeoModule } from './geo/geo.module';
 import { AdminModule } from './admin/admin.module';
 import { MetricsModule } from './metrics/metrics.module';
+import { AuthModule } from './auth/auth.module';
 
 const isDev = process.env.NODE_ENV !== 'production';
 
@@ -79,6 +80,7 @@ const isDev = process.env.NODE_ENV !== 'production';
       },
     }),
     PrismaModule,
+    AuthModule,
     CatalogModule,
     SearchModule,
     GeoModule,
