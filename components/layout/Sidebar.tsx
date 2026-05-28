@@ -1,9 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Building2, MapPin, Activity } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
+import { LayoutDashboard, Building2, MapPin, Activity, LogOut } from 'lucide-react';
 import clsx from 'clsx';
+import Cookies from 'js-cookie';
 
 const NAV = [
   { href: '/dashboard',   label: 'Дашборд',    icon: LayoutDashboard },
@@ -14,6 +15,11 @@ const NAV = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+
+  if (pathname.startsWith('/login')) {
+    return null;
+  }
 
   return (
     <aside className="w-60 min-h-screen bg-slate-900 text-slate-100 flex flex-col">
@@ -38,6 +44,18 @@ export function Sidebar() {
           </Link>
         ))}
       </nav>
+      <div className="px-3 py-4 border-t border-slate-800">
+        <button
+          onClick={() => {
+            Cookies.remove('sportgid_token');
+            router.replace('/login');
+          }}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
+        >
+          <LogOut size={18} />
+          Выйти
+        </button>
+      </div>
     </aside>
   );
 }
