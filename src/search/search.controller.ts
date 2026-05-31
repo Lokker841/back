@@ -14,21 +14,22 @@ export class SearchController {
   @Get()
   @CacheTTL(120)
   @ApiOperation({
-    summary: 'Поиск спортивных объектов',
+    summary: 'Поиск и фильтрация спортивных объектов',
     description:
-      'Двухэтапный поиск по опубликованным объектам. ' +
+      'Единая точка поиска и фильтрации по опубликованным объектам. ' +
       'Первый этап: выборка из БД по индексированным полям (status, district). ' +
       'Второй этап: in-memory фильтрация по `q` и `sport`.\n\n' +
-      '**Параметр `q`** ищет одновременно по:\n' +
+      '**Параметр `q`** (опционально) ищет одновременно по:\n' +
       '- названию объекта\n' +
       '- описанию объекта\n' +
       '- адресу объекта\n' +
       '- виду спорта любой из площадок объекта\n\n' +
+      '**Параметры `district` и `sport`** можно использовать отдельно или вместе с `q`. ' +
       'Все параметры комбинируются через **AND**. Кэш 2 минуты.',
   })
-  @ApiQuery({ name: 'q', required: false, example: 'Футбол', description: 'Поиск по названию объекта или виду спорта (мин. 2 символа)' })
+  @ApiQuery({ name: 'q', required: false, example: 'Футбол', description: 'Текстовый поиск (мин. 2 символа)' })
   @ApiQuery({ name: 'district', required: false, example: 'LENINSKY', description: 'Фильтр по району города' })
-  @ApiQuery({ name: 'sport', required: false, example: 'Теннис', description: 'Дополнительный фильтр строго по виду спорта' })
+  @ApiQuery({ name: 'sport', required: false, example: 'Теннис', description: 'Фильтр по виду спорта (частичное совпадение)' })
   @ApiResponse({
     status: 200,
     description: 'Массив найденных объектов с общим количеством совпадений',

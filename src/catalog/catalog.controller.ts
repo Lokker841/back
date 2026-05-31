@@ -27,11 +27,10 @@ export class CatalogController {
   @ApiOperation({
     summary: 'Список спортивных объектов',
     description:
-      'Возвращает постраничный список **опубликованных** объектов с фильтрацией по ' +
-      'району и виду спорта. Результат кэшируется в Redis на 5 минут.',
+      'Возвращает постраничный список **опубликованных** объектов без фильтров. ' +
+      'Для поиска и фильтрации по району/виду спорта используйте `/api/v1/search`. ' +
+      'Результат кэшируется в Redis на 5 минут.',
   })
-  @ApiQuery({ name: 'district', required: false, enum: ['LENINSKY', 'OKTYABRSKY', 'VOROSHILOVSKY', 'KIROVSKY', 'PERVOMAYSKY', 'PROLETARSKY', 'SOVETSKY', 'ZHELEZNODOROZHNY'], description: 'Район города' })
-  @ApiQuery({ name: 'sport', required: false, example: 'Футбол', description: 'Вид спорта (частичное совпадение)' })
   @ApiQuery({ name: 'limit', required: false, example: 20, description: 'Кол-во записей (1–100)' })
   @ApiQuery({ name: 'offset', required: false, example: 0, description: 'Смещение для пагинации' })
   @ApiResponse({

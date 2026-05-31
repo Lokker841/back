@@ -1,31 +1,13 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEnum, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
-import { District } from '@prisma/client';
+import { IsInt, IsOptional, Max, Min } from 'class-validator';
 
 export class CatalogQueryDto {
-  @ApiPropertyOptional({
-    description: 'Фильтр по административному району Ростова-на-Дону',
-    enum: District,
-    example: 'LENINSKY',
-  })
-  @IsEnum(District)
-  @IsOptional()
-  district?: District;
-
-  @ApiPropertyOptional({
-    description: 'Фильтр по виду спорта (частичное совпадение)',
-    example: 'Футбол',
-  })
-  @IsString()
-  @IsOptional()
-  sport?: string;
-
   @ApiPropertyOptional({
     description: 'Максимальное количество записей в ответе',
     default: 20,
     minimum: 1,
     maximum: 100,
-    example: 10,
+    example: 20,
   })
   @IsInt()
   @Min(1)
