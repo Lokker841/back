@@ -11,6 +11,11 @@ import { CreateAreaDto } from './dto/create-area.dto';
 import { UpdateAreaDto } from './dto/update-area.dto';
 import { Prisma, SportObjectStatus } from '@prisma/client';
 import { StorageService } from '../storage/storage.service';
+import { sportObjectInclude } from '../common/prisma/includes';
+import {
+  normalizeSportObject,
+  normalizeSportObjects,
+} from '../common/serializers/sport-object.serializer';
 
 const VALID_TRANSITIONS: Record<SportObjectStatus, SportObjectStatus[]> = {
   [SportObjectStatus.DRAFT]: [SportObjectStatus.PENDING_REVIEW],
@@ -83,49 +88,40 @@ export class AdminService {
     const { limit = 50, offset = 0 } = params;
     const [items, total] = await this.prisma.$transaction([
       this.prisma.sportObject.findMany({
-        include: { areas: true, images: true },
+        include: sportObjectInclude,
         orderBy: { createdAt: 'desc' },
         take: limit,
         skip: offset,
       }),
       this.prisma.sportObject.count(),
     ]);
-    return { items, total, limit, offset };
+    return {
+      items: normalizeSportObjects(items, { includeImages: true }),
+      total,
+      limit,
+      offset,
+    };
   }
 
   async findOneObject(id: string) {
     const object = await this.prisma.sportObject.findUnique({
       where: { id },
-      include: { areas: true, images: true },
+      include: sportObjectInclude,
     });
     if (!object) throw new NotFoundException(`Объект ${id} не найден`);
-    return object;
+    return normalizeSportObject(object, { includeImages: true });
   }
 
   async createObject(dto: CreateObjectDto) {
-    const { imageUrls, ...objectData } = dto;
     const object = await this.prisma.sportObject.create({
-      data: {
-        ...objectData,
-        images:
-          imageUrls && imageUrls.length
-            ? {
-                create: imageUrls.map((url) => ({
-                  url,
-                  // key пока не используется в UI, поэтому дублируем url для совместимости схемы
-                  key: url,
-                  position: 0,
-                })),
-              }
-            : undefined,
-      },
+      data: dto,
     });
 
     if (!dto.latitude || !dto.longitude) {
       void this.geoService.geocodeObject(object.id);
     }
 
-    return object;
+    return this.findOneObject(object.id);
   }
 
   async updateObject(id: string, dto: UpdateObjectDto) {
@@ -142,31 +138,13 @@ export class AdminService {
     const addressChanged =
       dto.address !== undefined && dto.address !== current.address;
 
-    const { imageUrls, ...objectData } = dto;
-
-    await this.prisma.$transaction(async (tx) => {
-      if (imageUrls !== undefined) {
-        await tx.media.deleteMany({ where: { objectId: id } });
-        if (imageUrls.length) {
-          await tx.media.createMany({
-            data: imageUrls.map((url) => ({
-              objectId: id,
-              url,
-              key: url,
-              position: 0,
-            })),
-          });
-        }
-      }
-
-      await tx.sportObject.update({
-        where: { id },
-        data: {
-          ...objectData,
-          // При смене адреса сбрасываем старые координаты — они больше не актуальны
-          ...(addressChanged && { latitude: null, longitude: null }),
-        },
-      });
+    await this.prisma.sportObject.update({
+      where: { id },
+      data: {
+        ...dto,
+        // При смене адреса сбрасываем старые координаты — они больше не актуальны
+        ...(addressChanged && { latitude: null, longitude: null }),
+      },
     });
 
     const updated = await this.findOneObject(id);

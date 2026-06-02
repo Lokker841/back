@@ -32,7 +32,21 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('Спорт Гид Ростов API')
-    .setDescription('Реестр спортивных объектов Ростова-на-Дону')
+    .setDescription(
+      'Реестр спортивных объектов Ростова-на-Дону.\n\n' +
+      '**Публичные эндпоинты:**\n' +
+      '- `GET /api/v1/catalog` — список опубликованных объектов (`limit`, `offset`)\n' +
+      '- `GET /api/v1/catalog/sports` — уникальные виды спорта\n' +
+      '- `GET /api/v1/catalog/:id` — карточка объекта\n' +
+      '- `GET /api/v1/search` — поиск и фильтры (`q`, `district`, `sport`)\n\n' +
+      '**Админ (JWT Bearer):**\n' +
+      '- CRUD объектов и площадок\n' +
+      '- `POST /api/v1/admin/objects/:id/images` — загрузка фото (multipart `files[]`)\n' +
+      '- `DELETE /api/v1/admin/objects/:id/images/:mediaId` — удаление фото\n' +
+      '- `PATCH /api/v1/admin/objects/:id/images/reorder` — порядок фото (`orderedIds`)\n\n' +
+      'В публичных ответах (catalog/search) фото — только `imageUrls` (ссылки S3). ' +
+      'Поля `phones` и `imageUrls` всегда массивы, `website`/`description`/`latitude`/`longitude` — `null`, если не заданы.',
+    )
     .setVersion('1.0')
     .addBearerAuth()
     .addTag('catalog', 'Публичный каталог объектов')

@@ -43,15 +43,8 @@ export const SPORT_OBJECT_EXAMPLE = {
   rating: 4.5,
   status: 'PUBLISHED',
   areas: [SPORT_AREA_EXAMPLE, SPORT_AREA_TENNIS_EXAMPLE],
-  images: [
-    {
-      id: 'c3d4e5f6-a7b8-9012-cdef-123456789012',
-      url: 'https://storage.yandexcloud.net/sportgid-photo/objects/6ead6880-7bad-4472-a2af-1edefccf99e7/example.jpg',
-      key: 'objects/6ead6880-7bad-4472-a2af-1edefccf99e7/example.jpg',
-      position: 0,
-      objectId: '6ead6880-7bad-4472-a2af-1edefccf99e7',
-      createdAt: '2026-05-13T15:34:58.434Z',
-    },
+  imageUrls: [
+    'https://storage.yandexcloud.net/sportgid-photo/objects/6ead6880-7bad-4472-a2af-1edefccf99e7/example.jpg',
   ],
   createdAt: '2026-05-13T15:34:58.434Z',
   updatedAt: '2026-05-13T15:34:58.434Z',
@@ -81,9 +74,24 @@ export const SPORT_OBJECT_DRAFT_EXAMPLE = {
       updatedAt: '2026-05-13T15:34:58.434Z',
     },
   ],
-  images: [],
+  imageUrls: [],
   createdAt: '2026-05-13T15:34:58.434Z',
   updatedAt: '2026-05-13T15:34:58.434Z',
+};
+
+/** Пример для admin API (с полным массивом images). */
+export const SPORT_OBJECT_ADMIN_EXAMPLE = {
+  ...SPORT_OBJECT_EXAMPLE,
+  images: [
+    {
+      id: 'c3d4e5f6-a7b8-9012-cdef-123456789012',
+      url: 'https://storage.yandexcloud.net/sportgid-photo/objects/6ead6880-7bad-4472-a2af-1edefccf99e7/example.jpg',
+      key: 'objects/6ead6880-7bad-4472-a2af-1edefccf99e7/example.jpg',
+      position: 0,
+      objectId: '6ead6880-7bad-4472-a2af-1edefccf99e7',
+      createdAt: '2026-05-13T15:34:58.434Z',
+    },
+  ],
 };
 
 export const CATALOG_LIST_EXAMPLE = {

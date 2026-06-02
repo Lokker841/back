@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { SearchQueryDto } from './dto/search-query.dto';
 import { Prisma, SportObjectStatus } from '@prisma/client';
+import { sportObjectInclude } from '../common/prisma/includes';
+import { normalizeSportObjects } from '../common/serializers/sport-object.serializer';
 
 type SportObjectWithRelations = Awaited<
   ReturnType<SearchService['fetchCandidates']>
@@ -14,7 +16,8 @@ export class SearchService {
   async search(query: SearchQueryDto) {
     const candidates = await this.fetchCandidates(query);
     const results = this.applyInMemoryFilters(candidates, query);
-    return { items: results, total: results.length };
+    const items = normalizeSportObjects(results);
+    return { items, total: items.length };
   }
 
   /**
@@ -33,7 +36,7 @@ export class SearchService {
 
     return this.prisma.sportObject.findMany({
       where,
-      include: { areas: true, images: true },
+      include: sportObjectInclude,
       orderBy: { rating: 'desc' },
       take: 500,
     });

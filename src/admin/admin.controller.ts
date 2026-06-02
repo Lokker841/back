@@ -35,6 +35,7 @@ import {
   ADMIN_OBJECTS_LIST_EXAMPLE,
   ADMIN_AREAS_LIST_EXAMPLE,
   SPORT_OBJECT_EXAMPLE,
+  SPORT_OBJECT_ADMIN_EXAMPLE,
   SPORT_OBJECT_DRAFT_EXAMPLE,
   SPORT_AREA_EXAMPLE,
   ERROR_404_OBJECT,
@@ -112,7 +113,7 @@ export class AdminController {
   @ApiResponse({
     status: 200,
     description: 'Карточка объекта',
-    schema: { example: SPORT_OBJECT_EXAMPLE },
+    schema: { example: SPORT_OBJECT_ADMIN_EXAMPLE },
   })
   @ApiResponse({
     status: 404,
@@ -128,7 +129,8 @@ export class AdminController {
     summary: 'Создать новый объект',
     description:
       'Создаёт объект со статусом `DRAFT`. Если координаты не переданы — ' +
-      'геокодирование запускается **асинхронно** через Yandex Maps API.',
+      'геокодирование запускается **асинхронно** через Yandex Maps API.\n\n' +
+      'Фотографии загружаются отдельно: `POST /api/v1/admin/objects/:id/images` (multipart `files[]`).',
   })
   @ApiBody({
     type: CreateObjectDto,
@@ -174,6 +176,7 @@ export class AdminController {
     description:
       'Если передаётся новый `address` — старые координаты **сбрасываются** и ' +
       'геокодирование запускается асинхронно. Объект возвращается сразу с `latitude: null`.\n\n' +
+      'Фото: загрузка/удаление/порядок — через эндпоинты `/images` (не через тело PATCH).\n\n' +
       'Обновляет поля объекта. Поле `status` проверяется по матрице допустимых переходов:\n\n' +
       '| Из | В | Разрешён |\n' +
       '|---|---|---|\n' +

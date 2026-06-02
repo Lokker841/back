@@ -3,7 +3,6 @@ import {
   Get,
   Param,
   Query,
-  NotFoundException,
   UseInterceptors,
 } from '@nestjs/common';
 import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
@@ -71,7 +70,8 @@ export class CatalogController {
   @ApiOperation({
     summary: 'Карточка спортивного объекта',
     description:
-      'Возвращает полную карточку объекта включая все площадки (`areas`) и медиафайлы (`images`). ' +
+      'Возвращает полную карточку объекта включая все площадки (`areas`) ' +
+      'и ссылки на фото в S3 (`imageUrls`, в порядке загрузки). ' +
       'Кэшируется в Redis на 10 минут.',
   })
   @ApiParam({
@@ -93,11 +93,7 @@ export class CatalogController {
       example: ERROR_404_OBJECT,
     },
   })
-  async findOne(@Param('id') id: string) {
-    const object = await this.catalogService.findOne(id);
-    if (!object) {
-      throw new NotFoundException(`Объект с id ${id} не найден`);
-    }
-    return object;
+  findOne(@Param('id') id: string) {
+    return this.catalogService.findOne(id);
   }
 }

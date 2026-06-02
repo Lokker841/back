@@ -5,7 +5,6 @@ import {
   IsNumber,
   IsOptional,
   IsString,
-  IsUrl,
   MaxLength,
   ArrayMaxSize,
   ArrayUnique,
@@ -85,17 +84,5 @@ export class CreateObjectDto {
   @IsString()
   @MaxLength(500)
   @IsOptional()
-  website?: string;
-
-  @ApiPropertyOptional({
-    description: 'Ссылки на изображения объекта',
-    example: ['https://example.com/image-1.jpg', 'https://example.com/image-2.jpg'],
-    type: [String],
-  })
-  @IsArray()
-  @ArrayMaxSize(30)
-  @ArrayUnique()
-  @IsUrl({}, { each: true })
-  @IsOptional()
-  imageUrls?: string[];
+  website?: string | null;
 }
