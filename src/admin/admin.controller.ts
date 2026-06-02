@@ -18,6 +18,7 @@ import {
   ApiResponse,
   ApiTags,
   ApiBearerAuth,
+  ApiConsumes,
 } from '@nestjs/swagger';
 import { IsInt, IsOptional, Min } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
@@ -27,6 +28,8 @@ import { UpdateObjectDto } from './dto/update-object.dto';
 import { CreateAreaDto } from './dto/create-area.dto';
 import { UpdateAreaDto } from './dto/update-area.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { FilesInterceptor } from '@nestjs/platform-express';
+import { UploadedFiles, UseInterceptors as UseInterceptorsNest, BadRequestException } from '@nestjs/common';
 import {
   STATS_EXAMPLE,
   ADMIN_OBJECTS_LIST_EXAMPLE,
@@ -452,5 +455,119 @@ export class AdminController {
   })
   deleteArea(@Param('id') id: string) {
     return this.adminService.deleteArea(id);
+  }
+
+  // ─── Images ───────────────────────────────────────────────────
+
+  @Post('objects/:id/images')
+  @ApiOperation({
+    summary: 'Загрузить фотографии объекта',
+    description:
+      'Принимает файлы через multipart/form-data, загружает их в S3 (Yandex Object Storage) и сохраняет ссылки в БД. ' +
+      'Возвращает актуальный список фотографий объекта в правильном порядке.',
+  })
+  @ApiParam({ name: 'id', description: 'UUID объекта', example: '6ead6880-7bad-4472-a2af-1edefccf99e7' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        files: {
+          type: 'array',
+          items: { type: 'string', format: 'binary' },
+        },
+      },
+      required: ['files'],
+    },
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Список фотографий объекта после загрузки',
+    schema: {
+      example: [
+        {
+          id: 'b2c3d4e5-f6a7-8901-bcde-f12345678901',
+          url: 'https://storage.yandexcloud.net/sportgid-photo/objects/6ead.../image.jpg',
+          key: 'objects/6ead.../image.jpg',
+          position: 0,
+          objectId: '6ead6880-7bad-4472-a2af-1edefccf99e7',
+          createdAt: '2026-05-13T15:34:58.434Z',
+        },
+      ],
+    },
+  })
+  @UseInterceptorsNest(
+    FilesInterceptor('files', 30, {
+      limits: { fileSize: 10 * 1024 * 1024 },
+    }),
+  )
+  uploadImages(
+    @Param('id') id: string,
+    @UploadedFiles() files: Express.Multer.File[],
+  ) {
+    if (!files?.length) {
+      throw new BadRequestException('files is required');
+    }
+    return this.adminService.addObjectImages(
+      id,
+      files.map((f) => ({
+        buffer: f.buffer,
+        mimetype: f.mimetype,
+        originalname: f.originalname,
+      })),
+    );
+  }
+
+  @Delete('objects/:id/images/:mediaId')
+  @HttpCode(200)
+  @ApiOperation({
+    summary: 'Удалить фотографию объекта',
+    description:
+      'Удаляет запись из БД и пытается удалить файл из S3 (best-effort).',
+  })
+  @ApiParam({ name: 'id', description: 'UUID объекта', example: '6ead6880-7bad-4472-a2af-1edefccf99e7' })
+  @ApiParam({ name: 'mediaId', description: 'UUID медиа', example: 'b2c3d4e5-f6a7-8901-bcde-f12345678901' })
+  @ApiResponse({
+    status: 200,
+    schema: { example: { message: 'Фото b2c3d4e5-f6a7-8901-bcde-f12345678901 удалено' } },
+  })
+  deleteImage(@Param('id') id: string, @Param('mediaId') mediaId: string) {
+    return this.adminService.deleteObjectImage(id, mediaId);
+  }
+
+  @Patch('objects/:id/images/reorder')
+  @ApiOperation({
+    summary: 'Изменить порядок фотографий объекта',
+    description:
+      'Принимает полный массив id фотографий в нужном порядке и сохраняет позиции. ' +
+      'Возвращает актуальный список фотографий объекта в новом порядке.',
+  })
+  @ApiParam({ name: 'id', description: 'UUID объекта', example: '6ead6880-7bad-4472-a2af-1edefccf99e7' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        orderedIds: {
+          type: 'array',
+          items: { type: 'string' },
+          example: [
+            'b2c3d4e5-f6a7-8901-bcde-f12345678901',
+            'c3d4e5f6-a7b8-9012-cdef-123456789012',
+          ],
+        },
+      },
+      required: ['orderedIds'],
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Список фотографий объекта в новом порядке',
+    schema: { example: [] },
+  })
+  reorderImages(
+    @Param('id') id: string,
+    @Body() body: { orderedIds: string[] },
+  ) {
+    return this.adminService.reorderObjectImages(id, body.orderedIds ?? []);
   }
 }

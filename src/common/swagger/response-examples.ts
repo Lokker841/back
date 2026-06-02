@@ -35,13 +35,24 @@ export const SPORT_OBJECT_EXAMPLE = {
   name: 'Стадион «Олимп»',
   description: 'Многофункциональный спортивный комплекс в центре города',
   address: 'Ростов-на-Дону, ул. Пушкинская, 90',
+  phones: ['8 (863) 233-46-23', '8 (863) 233-40-00'],
+  website: 'https://example.com',
   district: 'LENINSKY',
   latitude: 47.2224,
   longitude: 39.7186,
   rating: 4.5,
   status: 'PUBLISHED',
   areas: [SPORT_AREA_EXAMPLE, SPORT_AREA_TENNIS_EXAMPLE],
-  images: [],
+  images: [
+    {
+      id: 'c3d4e5f6-a7b8-9012-cdef-123456789012',
+      url: 'https://storage.yandexcloud.net/sportgid-photo/objects/6ead6880-7bad-4472-a2af-1edefccf99e7/example.jpg',
+      key: 'objects/6ead6880-7bad-4472-a2af-1edefccf99e7/example.jpg',
+      position: 0,
+      objectId: '6ead6880-7bad-4472-a2af-1edefccf99e7',
+      createdAt: '2026-05-13T15:34:58.434Z',
+    },
+  ],
   createdAt: '2026-05-13T15:34:58.434Z',
   updatedAt: '2026-05-13T15:34:58.434Z',
 };
@@ -51,6 +62,8 @@ export const SPORT_OBJECT_DRAFT_EXAMPLE = {
   name: 'Спортзал «Чемпион»',
   description: 'Тренажерный зал и зал групповых занятий',
   address: 'Ростов-на-Дону, ул. Красноармейская, 25',
+  phones: [],
+  website: null,
   district: 'VOROSHILOVSKY',
   latitude: null,
   longitude: null,
@@ -95,6 +108,7 @@ export const ADMIN_AREAS_LIST_EXAMPLE = [
 export const STATS_EXAMPLE = {
   totalObjects: 3,
   totalAreas: 5,
+  totalSports: 12,
   byDistrict: [
     { district: 'LENINSKY', count: 1 },
     { district: 'OKTYABRSKY', count: 1 },

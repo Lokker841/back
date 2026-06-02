@@ -67,9 +67,11 @@ model Media {
   id        String      @id @default(uuid())
   url       String
   key       String
+  position  Int         @default(0)
   objectId  String
   object    SportObject @relation(fields: [objectId], references: [id], onDelete: Cascade)
   createdAt DateTime    @default(now())
 
   @@index([objectId])
+  @@index([objectId, position])
 }

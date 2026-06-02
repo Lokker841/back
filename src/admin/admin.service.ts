@@ -10,6 +10,7 @@ import { UpdateObjectDto } from './dto/update-object.dto';
 import { CreateAreaDto } from './dto/create-area.dto';
 import { UpdateAreaDto } from './dto/update-area.dto';
 import { Prisma, SportObjectStatus } from '@prisma/client';
+import { StorageService } from '../storage/storage.service';
 
 const VALID_TRANSITIONS: Record<SportObjectStatus, SportObjectStatus[]> = {
   [SportObjectStatus.DRAFT]: [SportObjectStatus.PENDING_REVIEW],
@@ -26,6 +27,7 @@ export class AdminService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly geoService: GeoService,
+    private readonly storage: StorageService,
   ) {}
 
   // ─── Dashboard ───────────────────────────────────────────────
@@ -112,6 +114,7 @@ export class AdminService {
                   url,
                   // key пока не используется в UI, поэтому дублируем url для совместимости схемы
                   key: url,
+                  position: 0,
                 })),
               }
             : undefined,
@@ -150,6 +153,7 @@ export class AdminService {
               objectId: id,
               url,
               key: url,
+              position: 0,
             })),
           });
         }
@@ -178,6 +182,97 @@ export class AdminService {
     await this.findOneObject(id);
     await this.prisma.sportObject.delete({ where: { id } });
     return { message: `Объект ${id} удалён` };
+  }
+
+  // ─── Images (multipart -> S3 -> DB) ───────────────────────────
+
+  async addObjectImages(
+    objectId: string,
+    files: Array<{ buffer: Buffer; mimetype: string; originalname?: string }>,
+  ) {
+    await this.findOneObject(objectId);
+
+    const agg = await this.prisma.media.aggregate({
+      where: { objectId },
+      _max: { position: true },
+    });
+    const maxPosition = agg._max?.position ?? -1;
+
+    const uploaded = await Promise.all(
+      files.map((f) =>
+        this.storage.uploadObjectImage({
+          objectId,
+          bytes: f.buffer,
+          contentType: f.mimetype,
+          originalName: f.originalname,
+        }),
+      ),
+    );
+
+    await this.prisma.media.createMany({
+      data: uploaded.map((u, idx) => ({
+        objectId,
+        url: u.url,
+        key: u.key,
+        position: maxPosition + 1 + idx,
+      })),
+    });
+
+    return this.prisma.media.findMany({
+      where: { objectId },
+      orderBy: { position: 'asc' },
+    });
+  }
+
+  async deleteObjectImage(objectId: string, mediaId: string) {
+    await this.findOneObject(objectId);
+    const media = await this.prisma.media.findUnique({ where: { id: mediaId } });
+    if (!media || media.objectId !== objectId) {
+      throw new NotFoundException(`Фото ${mediaId} не найдено`);
+    }
+
+    try {
+      if (media.key) await this.storage.deleteByKey(media.key);
+    } catch {
+      // ignore S3 errors to keep admin functional
+    }
+
+    await this.prisma.media.delete({ where: { id: mediaId } });
+    return { message: `Фото ${mediaId} удалено` };
+  }
+
+  async reorderObjectImages(objectId: string, orderedIds: string[]) {
+    await this.findOneObject(objectId);
+
+    const images = await this.prisma.media.findMany({
+      where: { objectId },
+      select: { id: true },
+    });
+    const existing = new Set(images.map((i) => i.id));
+
+    if (orderedIds.length !== existing.size) {
+      throw new BadRequestException('Передайте полный список id фотографий объекта');
+    }
+
+    for (const id of orderedIds) {
+      if (!existing.has(id)) {
+        throw new BadRequestException(`Фото ${id} не принадлежит объекту`);
+      }
+    }
+
+    await this.prisma.$transaction(
+      orderedIds.map((id, idx) =>
+        this.prisma.media.update({
+          where: { id },
+          data: { position: idx },
+        }),
+      ),
+    );
+
+    return this.prisma.media.findMany({
+      where: { objectId },
+      orderBy: { position: 'asc' },
+    });
   }
 
   // ─── SportArea CRUD ───────────────────────────────────────────

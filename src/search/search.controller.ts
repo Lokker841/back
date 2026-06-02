@@ -25,7 +25,10 @@ export class SearchController {
       '- адресу объекта\n' +
       '- виду спорта любой из площадок объекта\n\n' +
       '**Параметры `district` и `sport`** можно использовать отдельно или вместе с `q`. ' +
-      'Все параметры комбинируются через **AND**. Кэш 2 минуты.',
+      'Все параметры комбинируются через **AND**. Кэш 2 минуты.\n\n' +
+      'Примеры запросов со *всеми* параметрами:\n' +
+      '- `/api/v1/search?q=стадион&district=LENINSKY&sport=Футбол`\n' +
+      '- `/api/v1/search?district=OKTYABRSKY&sport=Теннис` (без `q`)',
   })
   @ApiQuery({ name: 'q', required: false, example: 'Футбол', description: 'Текстовый поиск (мин. 2 символа)' })
   @ApiQuery({ name: 'district', required: false, example: 'LENINSKY', description: 'Фильтр по району города' })

@@ -11,7 +11,12 @@ export class AuthController {
   @Post('login')
   @ApiOperation({
     summary: 'Вход в админ-панель',
-    description: 'Возвращает JWT access token.',
+    description:
+      'Возвращает JWT access token.\n\n' +
+      'Пример запроса:\n' +
+      '```json\n' +
+      '{ \"username\": \"admin\", \"password\": \"Admin123!\" }\n' +
+      '```',
   })
   @ApiResponse({
     status: 201,

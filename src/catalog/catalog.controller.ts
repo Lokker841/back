@@ -29,7 +29,10 @@ export class CatalogController {
     description:
       'Возвращает постраничный список **опубликованных** объектов без фильтров. ' +
       'Для поиска и фильтрации по району/виду спорта используйте `/api/v1/search`. ' +
-      'Результат кэшируется в Redis на 5 минут.',
+      'Результат кэшируется в Redis на 5 минут.\n\n' +
+      'Примеры запросов:\n' +
+      '- `/api/v1/catalog?limit=20&offset=0`\n' +
+      '- `/api/v1/catalog?limit=100&offset=200`',
   })
   @ApiQuery({ name: 'limit', required: false, example: 20, description: 'Кол-во записей (1–100)' })
   @ApiQuery({ name: 'offset', required: false, example: 0, description: 'Смещение для пагинации' })
