@@ -49,6 +49,7 @@ export interface Media {
   id: string;
   url: string;
   key: string;
+  position?: number;
   objectId: string;
 }
 
@@ -103,6 +104,26 @@ export const adminApi = {
       api.patch<SportObject>(`/admin/objects/${id}`, data).then((r) => r.data),
     delete: (id: string) =>
       api.delete(`/admin/objects/${id}`).then((r) => r.data),
+
+    uploadImages: (objectId: string, files: File[]) => {
+      const fd = new FormData();
+      for (const f of files) fd.append('files', f);
+      return api
+        .post<Media[]>(`/admin/objects/${objectId}/images`, fd, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        })
+        .then((r) => r.data);
+    },
+
+    deleteImage: (objectId: string, mediaId: string) =>
+      api
+        .delete<{ message: string }>(`/admin/objects/${objectId}/images/${mediaId}`)
+        .then((r) => r.data),
+
+    reorderImages: (objectId: string, orderedIds: string[]) =>
+      api
+        .patch<Media[]>(`/admin/objects/${objectId}/images/reorder`, { orderedIds })
+        .then((r) => r.data),
   },
 
   areas: {

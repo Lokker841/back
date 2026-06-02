@@ -25,7 +25,7 @@ function ObjectForm({
   loading,
 }: {
   initial?: Partial<SportObject>;
-  onSubmit: (data: Partial<SportObject> & { imageUrls?: string[] }) => void;
+  onSubmit: (data: Partial<SportObject>) => void;
   loading: boolean;
 }) {
   const [form, setForm] = useState<Partial<SportObject>>(
@@ -34,9 +34,9 @@ function ObjectForm({
   const [phonesInput, setPhonesInput] = useState(
     (initial?.phones ?? []).join('\n'),
   );
-  const [imageUrlsInput, setImageUrlsInput] = useState(
-    (initial?.images ?? []).map((img) => img.url).join('\n'),
-  );
+  const [images, setImages] = useState((initial?.images ?? []).slice());
+  const [uploadFiles, setUploadFiles] = useState<File[]>([]);
+  const [uploading, setUploading] = useState(false);
 
   const set = (field: keyof SportObject, value: unknown) =>
     setForm((f) => ({ ...f, [field]: value }));
@@ -49,16 +49,11 @@ function ObjectForm({
           .split(/\r?\n/)
           .map((v) => v.trim())
           .filter(Boolean);
-        const imageUrls = imageUrlsInput
-          .split(/\r?\n/)
-          .map((v) => v.trim())
-          .filter(Boolean);
 
         onSubmit({
           ...form,
           phones,
           website: form.website?.trim() || null,
-          imageUrls,
         });
       }}
       className="space-y-4"
@@ -144,18 +139,128 @@ function ObjectForm({
         />
       </div>
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Ссылки на изображения (по одной в строке)
-        </label>
-        <textarea
-          rows={4}
-          value={imageUrlsInput}
-          onChange={(e) => setImageUrlsInput(e.target.value)}
-          placeholder={'https://example.com/image1.jpg\nhttps://example.com/image2.jpg'}
-          className={`${inputCls} resize-none`}
-        />
-      </div>
+      {initial?.id && (
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-700">
+            Фотографии
+          </label>
+
+          <div className="flex items-center gap-2">
+            <input
+              type="file"
+              multiple
+              accept="image/*"
+              onChange={(e) => {
+                const files = Array.from(e.target.files ?? []);
+                setUploadFiles(files);
+              }}
+              className="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200"
+            />
+            <button
+              type="button"
+              disabled={uploading || uploadFiles.length === 0}
+              onClick={async () => {
+                setUploading(true);
+                try {
+                  const next = await adminApi.objects.uploadImages(
+                    initial.id as string,
+                    uploadFiles,
+                  );
+                  setImages(next);
+                  setUploadFiles([]);
+                } finally {
+                  setUploading(false);
+                }
+              }}
+              className="shrink-0 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium py-2 px-3 rounded-lg text-sm transition-colors"
+            >
+              {uploading ? 'Загрузка...' : 'Загрузить'}
+            </button>
+          </div>
+
+          {images.length === 0 ? (
+            <div className="text-sm text-gray-500">Фотографий пока нет</div>
+          ) : (
+            <div className="space-y-2">
+              {images
+                .slice()
+                .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
+                .map((img, idx, arr) => (
+                  <div
+                    key={img.id}
+                    className="flex items-center gap-3 p-2 border border-gray-200 rounded-lg"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={img.url}
+                      alt=""
+                      className="h-14 w-14 object-cover rounded-md bg-gray-100"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs text-gray-500 truncate">
+                        {img.url}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        disabled={idx === 0}
+                        onClick={async () => {
+                          const sorted = images
+                            .slice()
+                            .sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
+                          const ids = sorted.map((x) => x.id);
+                          [ids[idx - 1], ids[idx]] = [ids[idx], ids[idx - 1]];
+                          const next = await adminApi.objects.reorderImages(
+                            initial.id as string,
+                            ids,
+                          );
+                          setImages(next);
+                        }}
+                        className="text-xs px-2 py-1 rounded-md border border-gray-200 hover:bg-gray-50 disabled:opacity-50"
+                      >
+                        ↑
+                      </button>
+                      <button
+                        type="button"
+                        disabled={idx === arr.length - 1}
+                        onClick={async () => {
+                          const sorted = images
+                            .slice()
+                            .sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
+                          const ids = sorted.map((x) => x.id);
+                          [ids[idx], ids[idx + 1]] = [ids[idx + 1], ids[idx]];
+                          const next = await adminApi.objects.reorderImages(
+                            initial.id as string,
+                            ids,
+                          );
+                          setImages(next);
+                        }}
+                        className="text-xs px-2 py-1 rounded-md border border-gray-200 hover:bg-gray-50 disabled:opacity-50"
+                      >
+                        ↓
+                      </button>
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          await adminApi.objects.deleteImage(
+                            initial.id as string,
+                            img.id,
+                          );
+                          setImages((prev) => prev.filter((x) => x.id !== img.id));
+                        }}
+                        className="text-xs px-2 py-1 rounded-md border border-red-200 text-red-700 hover:bg-red-50"
+                      >
+                        Удалить
+                      </button>
+                    </div>
+                  </div>
+                ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {initial?.id && (
         <div>
