@@ -56,17 +56,18 @@ export interface Media {
 export interface SportObject {
   id: string;
   name: string;
-  description?: string;
+  description?: string | null;
   address: string;
   phones: string[];
   website?: string | null;
   district: District;
-  latitude?: number;
-  longitude?: number;
+  latitude?: number | null;
+  longitude?: number | null;
   rating: number;
   status: SportObjectStatus;
   areas: SportArea[];
   images: Media[];
+  imageUrls: string[];
   createdAt: string;
   updatedAt: string;
 }
@@ -98,9 +99,9 @@ export const adminApi = {
       api.get<PaginatedResponse<SportObject>>('/admin/objects', { params }).then((r) => r.data),
     get: (id: string) =>
       api.get<SportObject>(`/admin/objects/${id}`).then((r) => r.data),
-    create: (data: Partial<SportObject> & { imageUrls?: string[] }) =>
+    create: (data: Partial<SportObject>) =>
       api.post<SportObject>('/admin/objects', data).then((r) => r.data),
-    update: (id: string, data: Partial<SportObject> & { imageUrls?: string[] }) =>
+    update: (id: string, data: Partial<SportObject>) =>
       api.patch<SportObject>(`/admin/objects/${id}`, data).then((r) => r.data),
     delete: (id: string) =>
       api.delete(`/admin/objects/${id}`).then((r) => r.data),
